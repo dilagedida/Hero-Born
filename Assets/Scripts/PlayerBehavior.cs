@@ -75,9 +75,18 @@ public class PlayerBehavior : MonoBehaviour
         // 发射子弹
         if (Input.GetMouseButtonDown(0))
         {
+            Vector3 spawnPos = muzzle.position + muzzle.forward * 0.2f;
             GameObject newBullet = Instantiate(bullet, muzzle.position, muzzle.rotation) as GameObject;
             Rigidbody bulletRB = newBullet.GetComponent<Rigidbody>();
             bulletRB.velocity = muzzle.forward * bulletSpeed;
+        }
+
+        // 让玩家面朝摄像机的水平 forward 方向
+        Vector3 lookDir = camTransform.forward;
+        lookDir.y = 0;
+        if (lookDir.sqrMagnitude > 0.001f)
+        {
+            transform.forward = lookDir.normalized;
         }
     }
 }
