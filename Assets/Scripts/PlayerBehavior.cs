@@ -41,6 +41,15 @@ public class PlayerBehavior : MonoBehaviour
         {
             _rb.AddForce(Vector3.up * jumpVelocity, ForceMode.Impulse);
         }
+        // 发射子弹
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector3 spawnPos = muzzle.position + muzzle.forward * 0.2f;
+            GameObject newBullet = Instantiate(bullet, spawnPos, muzzle.rotation) as GameObject;
+            Rigidbody bulletRB = newBullet.GetComponent<Rigidbody>();
+            bulletRB.useGravity = false;
+            bulletRB.velocity = muzzle.forward * bulletSpeed;
+        }
     }
 
     private bool IsGrounded()
@@ -72,14 +81,6 @@ public class PlayerBehavior : MonoBehaviour
 
         _rb.MovePosition(this.transform.position + moveDir * moveSpeed * Time.fixedDeltaTime);
 
-        // 发射子弹
-        if (Input.GetMouseButtonDown(0))
-        {
-            Vector3 spawnPos = muzzle.position + muzzle.forward * 0.2f;
-            GameObject newBullet = Instantiate(bullet, muzzle.position, muzzle.rotation) as GameObject;
-            Rigidbody bulletRB = newBullet.GetComponent<Rigidbody>();
-            bulletRB.velocity = muzzle.forward * bulletSpeed;
-        }
 
         // 让玩家面朝摄像机的水平 forward 方向
         Vector3 lookDir = camTransform.forward;
