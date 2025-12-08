@@ -2,54 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-void Start()
-{
-    _rb = GetComponent<Rigidbody>();
-    _col = GetComponent<CapsuleCollider>();
-    _gameManager = GameObject.Find("GameManager").GetComponent<GameBehavior>();
-    if (camTransform == null)
-    {
-        camTransform = Camera.main.transform; // 默认主摄像机
-    }
-}
-
-void Update()
-{
-    vInput = Input.GetAxis("Vertical");
-    hInput = Input.GetAxis("Horizontal");
-
-    if (IsGrounded() && Input.GetKeyDown(KeyCode.Space))
-    {
-        _rb.AddForce(Vector3.up * jumpVelocity, ForceMode.Impulse);
-    }
-}
-
-void FixedUpdate()
-{
-    // 计算摄像机方向上的移动
-    Vector3 camForward = camTransform.forward;
-    Vector3 camRight = camTransform.right;
-    camForward.y = 0;
-    camRight.y = 0;
-    camForward.Normalize();
-    camRight.Normalize();
-
-    Vector3 moveDir = (camForward * vInput + camRight * hInput).normalized;
-
-    _rb.MovePosition(this.transform.position + moveDir * moveSpeed * Time.fixedDeltaTime);
-
-    // 保持原有旋转逻辑（可由摄像机脚本控制玩家朝向）
-    // _rb.MoveRotation(_rb.rotation * angleRot);
-
-    if (Input.GetMouseButtonDown(0))
-    {
-        GameObject newBullet = Instantiate(bullet, muzzle.position, muzzle.rotation) as GameObject;
-        Rigidbody bulletRB = newBullet.GetComponent<Rigidbody>();
-        bulletRB.velocity = muzzle.forward * bulletSpeed;
-    }
-}
-using UnityEngine;
-
 public class PlayerBehavior : MonoBehaviour
 {
     public GameBehavior _gameManager;
