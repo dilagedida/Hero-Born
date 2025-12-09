@@ -61,9 +61,9 @@ public class PlayerBehavior : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.name == "Enemy")
+        if (collision.gameObject.name == "Enemy")//µ–»À≈ˆ◊≤…À∫¶
         {
-            _gameManager.HP -= 1;
+            _gameManager.HP -= 25;
         }
     }
 
