@@ -10,7 +10,7 @@ public class EnemyBehavior : MonoBehaviour
     public List<Transform> locations;
     private int locationIndex = 0;
     private NavMeshAgent agent;
-    private int _lives = 3;
+    private int _lives = 100;
 
     public int EnemyLives
     {
@@ -18,7 +18,7 @@ public class EnemyBehavior : MonoBehaviour
         private set
         {
             _lives = value;
-            if (_lives <= 0)
+            if (_lives <= 0)//敌人死亡
             {
                 Destroy(this.gameObject);
                 Debug.Log("Enemy down!");
@@ -46,7 +46,7 @@ public class EnemyBehavior : MonoBehaviour
             locations.Add(child);
         }
     }
-    void MoveToNexPatrolLocation()
+    void MoveToNexPatrolLocation()//敌人巡逻
     {
         if (locations.Count == 0)
         {
@@ -80,9 +80,9 @@ public class EnemyBehavior : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.name == "Bullet(Clone)")
+        if (collision.gameObject.name == "Bullet(Clone)")//子弹击中敌人
         {
-            EnemyLives -= 1;
+            EnemyLives -= 25;
             Destroy(collision.gameObject);
             Debug.Log("Critical hit!");
         }

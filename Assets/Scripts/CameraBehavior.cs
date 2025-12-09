@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CameraBehavior : MonoBehaviour
 {
-    public Vector3 camOffset = new Vector3(0, 1.2f, -2.6f);
+    public Vector3 camOffset = new Vector3(1.5f, 1, -6f);
     private Transform target;
 
     public float mouseSensitivity = 3.0f;
@@ -13,6 +13,8 @@ public class CameraBehavior : MonoBehaviour
 
     private float yaw = 0f;   // 水平旋转
     private float pitch = 10f; // 垂直旋转（初始略微俯视）
+
+    public Vector3 pivotOffset = new Vector3(0.7f, 1.2f, 0);//旋转中心
 
     void Start()
     {
@@ -38,10 +40,11 @@ public class CameraBehavior : MonoBehaviour
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
 
         // 计算相机位置
-        Vector3 desiredPosition = target.position + rotation * camOffset;
+        Vector3 pivot = target.position + pivotOffset;// 旋转中心位置
+        Vector3 desiredPosition = pivot + rotation * camOffset;
         transform.position = desiredPosition;
 
-        // 始终看向玩家
-        transform.LookAt(target.position + Vector3.up * 1.0f); // 视线略高于玩家中心
+        // 始终看向玩家右上方
+        transform.LookAt(pivot);
     }
 }

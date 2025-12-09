@@ -8,6 +8,6 @@ public class BulletBehavior : MonoBehaviour
 
     void Update()
     {
-        Destroy(this.gameObject, onscreenDelay);
+        Destroy(this.gameObject, onscreenDelay);//×Óµ¯Ïú»Ù
     }
 }

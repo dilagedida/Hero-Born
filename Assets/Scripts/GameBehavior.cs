@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class GameBehavior : MonoBehaviour
 {
     private int _itemsCollected = 0;
-    private int _playerHP = 3;
+    private int _playerHP = 100;
     public string labelText = "收集所有4个物品，然后赢得你的自由!";
     public int maxItems = 4;
 
