@@ -29,6 +29,9 @@ public class EnemyBehavior : MonoBehaviour
     public GameObject alertUI;           // 头顶的红色感叹号UI
     public AudioClip alertSound;         // 发现玩家时的音效
 
+    [Header("Detection Settings")]
+    public LayerMask detectionLayer;
+
     // 内部状态变量
     private NavMeshAgent agent;
     private EnemyState currentState = EnemyState.Patrol;
@@ -55,6 +58,7 @@ public class EnemyBehavior : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         audioSource = GetComponent<AudioSource>();
+
         if (GameObject.Find("Player"))
             player = GameObject.Find("Player").transform;
 
@@ -192,33 +196,58 @@ public class EnemyBehavior : MonoBehaviour
     // 核心视线检测：结合触发器和射线
     void CheckLineOfSight()
     {
-        // 发射射线检测是否有墙遮挡
-        Vector3 direction = player.position - transform.position;
+        // 设置起点：敌人的眼睛位置（还是保持1.5f或根据敌人模型调整）
+        Vector3 origin = transform.position + Vector3.up * 1.5f;
+
+        // 设置目标点：尝试获取玩家碰撞体的中心，而不是脚底+固定高度
+        Vector3 targetPos;
+
+        // 尝试获取玩家身上的碰撞体
+        Collider playerCollider = player.GetComponent<Collider>();
+        if (playerCollider != null)
+        {
+            // 如果有碰撞体，直接瞄准它的几何中心
+            targetPos = playerCollider.bounds.center;
+        }
+        else
+        {
+            // 如果玩家身上没有碰撞体，则瞄准脚底稍微往上一点点
+            targetPos = player.position + Vector3.up * 0.5f;
+        }
+
+        Vector3 direction = targetPos - origin;
         RaycastHit hit;
 
-        // 向玩家方向发射射线，如果打中玩家且没有障碍物
-        if (Physics.Raycast(transform.position + Vector3.up, direction.normalized, out hit, GetComponent<SphereCollider>().radius))
-        {
-            if (hit.collider.gameObject.name == "Player")
-            {
-                // 看见玩家了！
+        // 计算射程：获取球形触发器的半径并应用缩放
+        float range = GetComponent<SphereCollider>().radius;
+        // 防止物体缩放导致半径计算错误，乘以最大的缩放轴
+        float actualRange = range * Mathf.Max(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z);
 
-                // 如果当前是巡逻，进入警戒
+        // 发射射线
+        if (Physics.Raycast(origin, direction.normalized, out hit, actualRange, detectionLayer, QueryTriggerInteraction.Ignore))
+        {
+            // 如果打中了玩家
+            if (hit.collider.CompareTag("Player"))
+            {
+                Debug.DrawLine(origin, hit.point, Color.green); // 绿线
+
+                // 状态切换逻辑
                 if (currentState == EnemyState.Patrol)
                 {
                     EnterAlertState();
                 }
-                // 如果当前是丢失状态（比如玩家躲起来又出来了），直接追击
                 else if (currentState == EnemyState.Lost)
                 {
                     EnterChaseState();
                 }
-                return;
+                return; // 看见玩家了，直接结束
             }
         }
 
-        // 视线被遮挡（虽然在触发器内，但隔着墙）
-        // 如果之前在追击或警戒，现在看不到了，进入丢失逻辑
+        // 如果没打中玩家
+        Debug.DrawRay(origin, direction.normalized * actualRange, Color.red); // 红线
+
+        // 只有当前是 追击 或 警戒 时，才因为丢失视野转为 Lost
         if (currentState == EnemyState.Chase || currentState == EnemyState.Alert)
         {
             EnterLostState();
@@ -243,7 +272,7 @@ public class EnemyBehavior : MonoBehaviour
     // 触发器进入：只负责标记“玩家在范围内”
     void OnTriggerEnter(Collider other)
     {
-        if (other.name == "Player")
+        if (other.CompareTag("Player"))
         {
             playerInTrigger = true;
         }
@@ -252,10 +281,10 @@ public class EnemyBehavior : MonoBehaviour
     // 触发器退出：彻底丢失，直接进入Lost状态
     void OnTriggerExit(Collider other)
     {
-        if (other.name == "Player")
+        if (other.CompareTag("Player"))
         {
             playerInTrigger = false;
-            // 只有当还在追击或警戒时才转入丢失状态
+            // 离开触发范围，只有在追击或警戒时才丢失
             if (currentState == EnemyState.Chase || currentState == EnemyState.Alert)
             {
                 EnterLostState();

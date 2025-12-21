@@ -42,6 +42,10 @@ public class PlayerBehavior : MonoBehaviour
         //自动获取摄像机引用
         if (mainCamera == null) mainCamera = Camera.main;
         if (camTransform == null && mainCamera != null) camTransform = mainCamera.transform;
+
+        //锁定鼠标
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Update()
